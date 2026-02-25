@@ -1,0 +1,10 @@
+{
+  "name": "openclaw-hookpack-bootstrap-minimizer",
+  "version": "0.1.0",
+  "description": "OpenClaw hook pack: per-agent bootstrap routing + token-minimal startup context",
+  "license": "MIT",
+  "private": false,
+  "openclaw": {
+    "hooks": ["./hooks/bootstrap-minimizer"]
+  }
+}
