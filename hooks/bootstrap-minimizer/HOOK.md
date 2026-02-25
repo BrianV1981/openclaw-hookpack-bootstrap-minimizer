@@ -46,11 +46,11 @@ Always excludes (by default):
 
 For each agent you want to compartmentalize, create a folder under your workspace named after the agent id.
 
-Example (builder):
+Example:
 
 ```
 workspace/
-  builder/
+  helper-1/
     SOUL.md
     TOOLS.md
     IDENTITY.md
@@ -78,6 +78,8 @@ Common customizations:
 - **Load only SOUL.md for one agent:** set the `wanted` list to `['SOUL.md']` for that `agentId`.
 - **Load nothing for one agent:** set `wanted = []` for that `agentId` (the agent will run with no project context files injected).
 - **Load root files for a specific agent:** set `wanted` to root files instead of `path.join(agentId, ...)`.
+
+Tip (non-coders): you can think of this hook as a "startup packing list". Every agent can have its own packing list.
 
 ## Debug logging
 Disabled by default.

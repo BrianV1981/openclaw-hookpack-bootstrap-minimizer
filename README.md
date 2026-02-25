@@ -1,95 +1,118 @@
 # openclaw-hookpack-bootstrap-minimizer
 
-OpenClaw hook pack that rewrites bootstrap file injection to:
-- reduce startup context overhead
-- enforce per-agent compartmentalized bootstraps (each agent loads its own `workspace/<agentId>/*.md` files)
+Run a **team of AI agents** in OpenClaw where each agent can have its own:
+- personality (SOUL)
+- role/identity
+- guardrails
+- tool notes
 
-## Install
+…and crucially: **each agent only loads what it needs**, which can **dramatically reduce token usage** at startup and during long sessions.
 
-From a local folder:
+This hook pack lets you:
+- **stop auto-loading bulky workspace files** (or load only a small allowlist)
+- **compartmentalize subagents** (so they don’t inherit your main agent’s entire brain)
+- **keep context windows small** while still running many agents
+
+---
+
+## What problem does this solve?
+
+By default, many setups end up injecting a large set of workspace files into every agent run.
+That is convenient, but it’s expensive.
+
+This hook rewrites the bootstrap file list during `agent:bootstrap` so you can:
+- keep the **main agent** informed
+- keep **subagents** narrowly scoped (cheaper + safer)
+
+---
+
+## Quickstart (non-coder friendly)
+
+### Step 1) Install + enable
 
 ```bash
 openclaw hooks install ./openclaw-hookpack-bootstrap-minimizer
-```
-
-Then enable the hook:
-
-```bash
 openclaw hooks enable bootstrap-minimizer
 openclaw gateway restart
 ```
 
-## Quickstart
+### Step 2) Create a folder for each agent (optional but recommended)
 
-### 1) Install + enable
+Make a folder in your OpenClaw workspace for each agent id.
+Use any names you want — the folder name must match the agent id.
 
-```bash
-openclaw hooks install ./openclaw-hookpack-bootstrap-minimizer
-openclaw hooks enable bootstrap-minimizer
-openclaw gateway restart
-```
-
-### 2) Create per-agent bootstrap files
-
-For each agent you want compartmentalized, create:
+Example layout:
 
 ```
 workspace/
-  <agentId>/
-    SOUL.md
-    TOOLS.md
-    IDENTITY.md
-    USER.md
-    HEARTBEAT.md
+  main/            (your primary agent)
+  helper-1/        (a specialist subagent)
+  helper-2/        (another specialist)
+
+  helper-1/
+    SOUL.md        (personality + guardrails)
+    TOOLS.md       (tool usage notes)
+    IDENTITY.md    (role)
+    USER.md        (optional)
+    HEARTBEAT.md   (optional)
 ```
 
-Examples:
+Minimal works. A 1–5 line `SOUL.md` is valid.
 
-```
-workspace/
-  builder/...
-  ops/...
-  inbox/...
-  inbox-youtube/...
-  inbox-bookmarks/...
-```
+### Step 3) Confirm it’s working
 
-Minimal works. Even a 1-line `SOUL.md` is valid.
+If a subagent is compartmentalized correctly, it should *not* know main-agent rules unless you put them in that subagent’s files.
 
-## Behavior (default)
+---
+
+## Default behavior (out of the box)
 
 ### Main agent (`agentId=main`)
-Injects only root:
-- `SOUL.md`, `USER.md`, `IDENTITY.md`, `AGENTS.md`, `TOOLS.md`, `HEARTBEAT.md`
+Injects only these root workspace files:
+- `SOUL.md`
+- `USER.md`
+- `IDENTITY.md`
+- `AGENTS.md`
+- `TOOLS.md`
+- `HEARTBEAT.md`
 
-### Subagents
-Injects only agent folder equivalents:
-- `workspace/<agentId>/{SOUL,TOOLS,IDENTITY,USER,HEARTBEAT}.md`
+### Subagents (any non-main agent)
+Injects only the agent-folder equivalents:
+- `workspace/<agentId>/SOUL.md`
+- `workspace/<agentId>/TOOLS.md`
+- `workspace/<agentId>/IDENTITY.md`
+- `workspace/<agentId>/USER.md`
+- `workspace/<agentId>/HEARTBEAT.md`
 
-### Exclusions
-Always excluded:
+### Always excluded
 - `MEMORY.md`
 - `memory.md`
 
-## Customization
+---
 
-This pack is intentionally small and hackable.
+## Customization (this is the whole point)
 
-To customize what loads per agent, edit:
+You can customize what loads per agent by editing:
 - `hooks/bootstrap-minimizer/handler.ts`
 
-Common patterns:
+### Examples
 
-- **Load only SOUL for a specific agent** (example: `reviewer`):
-  - set `wanted = ['SOUL.md']`
-- **Load nothing** (maximum token savings, but least guardrails):
-  - set `wanted = []`
-- **Mix root + agent files** (e.g., include root `USER.md` for every agent):
-  - add another `mk(workspaceDir, 'USER.md', 'USER.md')` to `chosen`
+#### 1) Load *nothing* for a subagent (maximum token savings)
+Good for “dumb worker” agents that only follow the task you give them.
 
-Tip: keep the behavior deterministic and document your policy in your workspace.
+- Set `wanted = []` for that `agentId`.
 
-## Configuration
+#### 2) Load only a SOUL for a subagent (personality + guardrails, nothing else)
+Good for subagents that need strict boundaries but no extra baggage.
+
+- Set `wanted = ['SOUL.md']` for that `agentId`.
+
+#### 3) Let one subagent inherit main USER rules
+If you want a helper agent to know the owner’s preferences, inject root `USER.md` in addition to its own files.
+
+---
+
+## Configuration (optional)
 
 Enable debug JSONL logging:
 
