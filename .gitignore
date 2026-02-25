@@ -1,0 +1,9 @@
+# Local-only dev artifacts
+initOvrhl/
+
+# Build/deps
+node_modules/
+*.tsbuildinfo
+
+# OS
+.DS_Store
