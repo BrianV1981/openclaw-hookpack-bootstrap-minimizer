@@ -43,6 +43,11 @@ export default async function handler(event: any) {
 
   let chosen: any[] = [];
 
+  // Customize per-agent behavior here.
+  // Examples:
+  // - load only SOUL for one agent: const wanted = ['SOUL.md']
+  // - load nothing for one agent: const wanted = []
+
   if (agentId === 'main') {
     const wanted = ['SOUL.md', 'USER.md', 'IDENTITY.md', 'AGENTS.md', 'TOOLS.md', 'HEARTBEAT.md'];
     const files = await Promise.all(wanted.map((n) => mk(workspaceDir, n, n)));

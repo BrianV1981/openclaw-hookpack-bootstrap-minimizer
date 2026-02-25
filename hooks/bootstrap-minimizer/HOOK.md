@@ -40,6 +40,45 @@ Always excludes (by default):
 - `MEMORY.md`
 - `memory.md`
 
+## Quickstart
+
+### 1) Create per-agent bootstrap files
+
+For each agent you want to compartmentalize, create a folder under your workspace named after the agent id.
+
+Example (builder):
+
+```
+workspace/
+  builder/
+    SOUL.md
+    TOOLS.md
+    IDENTITY.md
+    USER.md
+    HEARTBEAT.md
+```
+
+You can keep these files extremely small (even 1–5 lines each).
+
+### 2) Enable the hook
+
+```bash
+openclaw hooks enable bootstrap-minimizer
+openclaw gateway restart
+```
+
+### 3) Verify (optional)
+Enable debug logging and inspect what files were injected.
+
+## Customization
+
+This hook is intentionally simple. To customize per-agent behavior, edit `handler.ts` and adjust the allowlists.
+
+Common customizations:
+- **Load only SOUL.md for one agent:** set the `wanted` list to `['SOUL.md']` for that `agentId`.
+- **Load nothing for one agent:** set `wanted = []` for that `agentId` (the agent will run with no project context files injected).
+- **Load root files for a specific agent:** set `wanted` to root files instead of `path.join(agentId, ...)`.
+
 ## Debug logging
 Disabled by default.
 
