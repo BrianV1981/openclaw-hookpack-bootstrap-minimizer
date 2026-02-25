@@ -33,7 +33,6 @@ For any non-main agent, it injects only the agent-folder bootstrap files:
 - `workspace/<agentId>/TOOLS.md`
 - `workspace/<agentId>/IDENTITY.md`
 - `workspace/<agentId>/USER.md`
-- `workspace/<agentId>/HEARTBEAT.md`
 
 ### Exclusions
 Always excludes (by default):
@@ -55,7 +54,6 @@ workspace/
     TOOLS.md
     IDENTITY.md
     USER.md
-    HEARTBEAT.md
 ```
 
 You can keep these files extremely small (even 1–5 lines each).

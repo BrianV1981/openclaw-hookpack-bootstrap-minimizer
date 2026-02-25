@@ -53,7 +53,9 @@ export default async function handler(event: any) {
     const files = await Promise.all(wanted.map((n) => mk(workspaceDir, n, n)));
     chosen = files.filter((f) => !EXCLUDE.has(f.name));
   } else {
-    const wanted = ['SOUL.md', 'TOOLS.md', 'IDENTITY.md', 'USER.md', 'HEARTBEAT.md'];
+    // Subagents: default to a minimal, tool-capable personality/role loadout.
+    // Note: HEARTBEAT.md is intentionally NOT loaded for subagents by default.
+    const wanted = ['SOUL.md', 'TOOLS.md', 'IDENTITY.md', 'USER.md'];
     const files = await Promise.all(wanted.map((n) => mk(workspaceDir, path.join(agentId, n), n)));
     chosen = files.filter((f) => !EXCLUDE.has(f.name));
   }

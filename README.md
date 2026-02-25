@@ -54,7 +54,6 @@ workspace/
     TOOLS.md       (tool usage notes)
     IDENTITY.md    (role)
     USER.md        (optional)
-    HEARTBEAT.md   (optional)
 ```
 
 Minimal works. A 1–5 line `SOUL.md` is valid.
@@ -82,7 +81,8 @@ Injects only the agent-folder equivalents:
 - `workspace/<agentId>/TOOLS.md`
 - `workspace/<agentId>/IDENTITY.md`
 - `workspace/<agentId>/USER.md`
-- `workspace/<agentId>/HEARTBEAT.md`
+
+> `HEARTBEAT.md` is intentionally **not** injected for subagents by default.
 
 ### Always excluded
 - `MEMORY.md`
@@ -97,18 +97,25 @@ You can customize what loads per agent by editing:
 
 ### Examples
 
-#### 1) Load *nothing* for a subagent (maximum token savings)
-Good for “dumb worker” agents that only follow the task you give them.
+#### 1) Agent with **nothing** (maximum token savings)
+Use for “dumb worker” agents that should only follow the task you give them.
 
-- Set `wanted = []` for that `agentId`.
+- For that `agentId`, set:
+  - `wanted = []`
 
-#### 2) Load only a SOUL for a subagent (personality + guardrails, nothing else)
-Good for subagents that need strict boundaries but no extra baggage.
+#### 2) Agent with **just a SOUL** (guardrails + personality, no tools)
+Use when you want strict boundaries but minimal baggage.
 
-- Set `wanted = ['SOUL.md']` for that `agentId`.
+- For that `agentId`, set:
+  - `wanted = ['SOUL.md']`
 
-#### 3) Let one subagent inherit main USER rules
-If you want a helper agent to know the owner’s preferences, inject root `USER.md` in addition to its own files.
+#### 3) Agent with the default loadout **minus TOOLS.md** (prevents tool instructions)
+Use when you want the agent to have an identity/personality, but you do **not** want it to load tool guidance.
+
+- For that `agentId`, set:
+  - `wanted = ['SOUL.md', 'IDENTITY.md', 'USER.md']`
+
+(Keep in mind: this removes tool *instructions* from its context; it doesn’t change platform-level tool permissions.)
 
 ---
 
