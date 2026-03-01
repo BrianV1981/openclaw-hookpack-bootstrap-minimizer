@@ -1,34 +1,37 @@
-# openclaw-hookpack-bootstrap-minimizer
+# 🧬 openclaw-hookpack-bootstrap-minimizer
 
-Run a **team of AI agents** in OpenClaw where each agent can have its own:
-- personality (SOUL)
-- role/identity
-- guardrails
-- tool notes
+**Make OpenClaw cheaper, cleaner, and smarter in 5 minutes.**
 
-…and crucially: **each agent only loads what it needs**, which can **dramatically reduce token usage** at startup and during long sessions.
+This hook controls what files each agent loads at startup.
 
-This hook pack lets you:
-- **stop auto-loading bulky workspace files** (or load only a small allowlist)
-- **compartmentalize subagents** (so they don’t inherit your main agent’s entire brain)
-- **keep context windows small** while still running many agents
+That means you can:
+- ✅ stop loading giant context files everywhere
+- ✅ give each sub-agent its own tiny brain
+- ✅ cut token burn on every run
+- ✅ keep novice-friendly control via config (no code edits)
 
 ---
 
-## What problem does this solve?
+## The problem (in plain English)
 
-By default, many setups end up injecting a large set of workspace files into every agent run.
-That is convenient, but it’s expensive.
+By default, agents often start with too much context.
+That costs tokens and causes confusion.
 
-This hook rewrites the bootstrap file list during `agent:bootstrap` so you can:
-- keep the **main agent** informed
-- keep **subagents** narrowly scoped (cheaper + safer)
+If all agents load the same files, your specialist agents become bloated and noisy.
 
 ---
 
-## Quickstart (non-coder friendly)
+## The fix
 
-### Step 1) Install + enable
+This hook rewires bootstrap file injection.
+
+- **Main agent** gets your main files.
+- **Sub-agents** get only their own folder files.
+- You can configure all of it in `openclaw.json`.
+
+---
+
+## 60-second install
 
 ```bash
 openclaw hooks install ./openclaw-hookpack-bootstrap-minimizer
@@ -36,14 +39,11 @@ openclaw hooks enable bootstrap-minimizer
 openclaw gateway restart
 ```
 
-### Step 2) Create a folder for each agent (optional but recommended)
+---
 
-Make a folder in your OpenClaw workspace for each agent id.
-Use any names you want — the folder name must match the agent id.
+## Folder layout (copy this)
 
-Example layout:
-
-```
+```text
 workspace/
   SOUL.md
   USER.md
@@ -53,28 +53,22 @@ workspace/
   HEARTBEAT.md
 
   sub-agents/
-    helper-1/
-      SOUL.md      (personality + guardrails)
-      TOOLS.md     (tool usage notes)
-      IDENTITY.md  (role)
-      USER.md      (optional)
-
-    helper-2/
+    writer/
       SOUL.md
+      IDENTITY.md
+      TOOLS.md
+      USER.md
+
+    researcher/
+      SOUL.md
+      IDENTITY.md
 ```
-
-Minimal works. A 1–5 line `SOUL.md` is valid.
-
-### Step 3) Confirm it’s working
-
-If a subagent is compartmentalized correctly, it should *not* know main-agent rules unless you put them in that subagent’s files.
 
 ---
 
-## Default behavior (out of the box)
+## Super simple defaults
 
-### Main agent (`agentId=main`)
-Injects only these root workspace files:
+### Main agent loads:
 - `SOUL.md`
 - `USER.md`
 - `IDENTITY.md`
@@ -82,24 +76,21 @@ Injects only these root workspace files:
 - `TOOLS.md`
 - `HEARTBEAT.md`
 
-### Subagents (any non-main agent)
-Injects only the agent-folder equivalents:
-- `workspace/sub-agents/<agentId>/SOUL.md`
-- `workspace/sub-agents/<agentId>/TOOLS.md`
-- `workspace/sub-agents/<agentId>/IDENTITY.md`
-- `workspace/sub-agents/<agentId>/USER.md`
+### Sub-agents load:
+- `sub-agents/<agentId>/SOUL.md`
+- `sub-agents/<agentId>/TOOLS.md`
+- `sub-agents/<agentId>/IDENTITY.md`
+- `sub-agents/<agentId>/USER.md`
 
-> `HEARTBEAT.md` is intentionally **not** injected for subagents by default.
-
-### Always excluded
+### Excluded by default:
 - `MEMORY.md`
 - `memory.md`
 
 ---
 
-## Configuration “dashboard” (no code edits required)
+## No-code “dashboard” config
 
-You can now customize per-agent bootstrap behavior directly in `openclaw.json`.
+Put this in `openclaw.json`:
 
 ```json
 {
@@ -109,22 +100,22 @@ You can now customize per-agent bootstrap behavior directly in `openclaw.json`.
       "entries": {
         "bootstrap-minimizer": {
           "enabled": true,
-          "debug": true,
+          "debug": false,
 
           "excludeNames": ["MEMORY.md", "memory.md"],
 
           "agentWanted": {
             "main": ["SOUL.md", "USER.md", "IDENTITY.md", "AGENTS.md", "TOOLS.md", "HEARTBEAT.md"],
-            "helper-1": ["SOUL.md"],
-            "helper-2": [],
-            "helper-3": ["SOUL.md", "IDENTITY.md", "USER.md"]
+            "writer": ["SOUL.md"],
+            "researcher": ["SOUL.md", "IDENTITY.md"],
+            "worker": []
           },
 
           "agentPaths": {
-            "helper-4": [
-              "sub-agents/helper-4/SOUL.md",
-              "sub-agents/helper-4/IDENTITY.md",
-              "sub-agents/helper-4/GUARDRAILS.md"
+            "ops": [
+              "sub-agents/ops/SOUL.md",
+              "sub-agents/ops/IDENTITY.md",
+              "sub-agents/ops/GUARDRAILS.md"
             ]
           }
         }
@@ -134,25 +125,75 @@ You can now customize per-agent bootstrap behavior directly in `openclaw.json`.
 }
 ```
 
-### How it works
+---
 
-- `agentPaths[agentId]` (power mode) has highest priority.
-  - Uses exact workspace-relative file paths.
-- If no `agentPaths[agentId]`, then `agentWanted[agentId]` is used.
-  - For `main`: names are resolved from workspace root.
-  - For subagents: names are resolved from `workspace/sub-agents/<agentId>/`.
-- If neither is set, hook defaults are used.
+## How config priority works
 
-### Useful patterns
+1. `agentPaths[agentId]` (exact paths) ← highest priority  
+2. `agentWanted[agentId]` (simple filename list)  
+3. built-in defaults
 
-- **Load nothing:** `"helper-2": []`
-- **Soul only:** `"helper-1": ["SOUL.md"]`
-- **No tools guidance:** omit `TOOLS.md` from `agentWanted`.
+---
 
-### Debug log
+## Copy-paste recipes
 
-If `debug: true`, JSONL logs are written to:
+### 1) “Soul only” agent
+```json
+"agentWanted": {
+  "my-agent": ["SOUL.md"]
+}
+```
+
+### 2) “No bootstrap files” worker
+```json
+"agentWanted": {
+  "my-worker": []
+}
+```
+
+### 3) “No tool guidance” agent
+```json
+"agentWanted": {
+  "my-agent": ["SOUL.md", "IDENTITY.md", "USER.md"]
+}
+```
+
+---
+
+## Debug mode (optional)
+
+Enable:
+
+```json
+"debug": true
+```
+
+Then inspect:
 - `workspace/debug/bootstrap-minimizer.log.jsonl`
 
+You’ll see exactly what files each agent got.
+
+---
+
+## Why people like this hook
+
+- **Novice-friendly:** config-driven, no TypeScript edits required
+- **Safer agents:** each sub-agent gets only relevant instructions
+- **Cheaper runs:** less junk in startup context
+- **Scales fast:** easy to add many specialized agents
+
+---
+
+## Who this is for
+
+- Builders running multi-agent OpenClaw setups
+- Teams trying to reduce token spend
+- Anyone tired of “all agents load all the things”
+
+If you can edit JSON, you can use this.
+
+---
+
 ## License
+
 MIT
