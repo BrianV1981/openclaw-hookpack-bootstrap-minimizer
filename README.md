@@ -97,38 +97,9 @@ Injects only the agent-folder equivalents:
 
 ---
 
-## Customization (this is the whole point)
+## Configuration “dashboard” (no code edits required)
 
-You can customize what loads per agent by editing:
-- `hooks/bootstrap-minimizer/handler.ts`
-
-### Examples
-
-#### 1) Agent with **nothing** (maximum token savings)
-Use for “dumb worker” agents that should only follow the task you give them.
-
-- For that `agentId`, set:
-  - `wanted = []`
-
-#### 2) Agent with **just a SOUL** (guardrails + personality, no tools)
-Use when you want strict boundaries but minimal baggage.
-
-- For that `agentId`, set:
-  - `wanted = ['SOUL.md']`
-
-#### 3) Agent with the default loadout **minus TOOLS.md** (prevents tool instructions)
-Use when you want the agent to have an identity/personality, but you do **not** want it to load tool guidance.
-
-- For that `agentId`, set:
-  - `wanted = ['SOUL.md', 'IDENTITY.md', 'USER.md']`
-
-(Keep in mind: this removes tool *instructions* from its context; it doesn’t change platform-level tool permissions.)
-
----
-
-## Configuration (optional)
-
-Enable debug JSONL logging:
+You can now customize per-agent bootstrap behavior directly in `openclaw.json`.
 
 ```json
 {
@@ -138,7 +109,24 @@ Enable debug JSONL logging:
       "entries": {
         "bootstrap-minimizer": {
           "enabled": true,
-          "debug": true
+          "debug": true,
+
+          "excludeNames": ["MEMORY.md", "memory.md"],
+
+          "agentWanted": {
+            "main": ["SOUL.md", "USER.md", "IDENTITY.md", "AGENTS.md", "TOOLS.md", "HEARTBEAT.md"],
+            "helper-1": ["SOUL.md"],
+            "helper-2": [],
+            "helper-3": ["SOUL.md", "IDENTITY.md", "USER.md"]
+          },
+
+          "agentPaths": {
+            "helper-4": [
+              "sub-agents/helper-4/SOUL.md",
+              "sub-agents/helper-4/IDENTITY.md",
+              "sub-agents/helper-4/GUARDRAILS.md"
+            ]
+          }
         }
       }
     }
@@ -146,7 +134,24 @@ Enable debug JSONL logging:
 }
 ```
 
-Debug output:
+### How it works
+
+- `agentPaths[agentId]` (power mode) has highest priority.
+  - Uses exact workspace-relative file paths.
+- If no `agentPaths[agentId]`, then `agentWanted[agentId]` is used.
+  - For `main`: names are resolved from workspace root.
+  - For subagents: names are resolved from `workspace/sub-agents/<agentId>/`.
+- If neither is set, hook defaults are used.
+
+### Useful patterns
+
+- **Load nothing:** `"helper-2": []`
+- **Soul only:** `"helper-1": ["SOUL.md"]`
+- **No tools guidance:** omit `TOOLS.md` from `agentWanted`.
+
+### Debug log
+
+If `debug: true`, JSONL logs are written to:
 - `workspace/debug/bootstrap-minimizer.log.jsonl`
 
 ## License

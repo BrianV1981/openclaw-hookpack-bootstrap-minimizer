@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.3
+- Added config-driven “dashboard” controls in `handler.ts`:
+  - `agentWanted` (per-agent basename lists)
+  - `agentPaths` (per-agent explicit workspace-relative paths, higher priority)
+  - `excludeNames` (configurable exclusion list)
+- Added path sanitization to block invalid/escaping relative paths.
+- Added dedupe by resolved file path.
+- Docs updated to reflect config-first customization (README + HOOK).
+
 ## 0.1.2
 - Project cleanup + consolidation:
   - Removed legacy `initOvrhl/` project folder from repo root.

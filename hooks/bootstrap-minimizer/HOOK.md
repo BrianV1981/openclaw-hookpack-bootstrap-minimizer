@@ -69,16 +69,43 @@ openclaw gateway restart
 ### 3) Verify (optional)
 Enable debug logging and inspect what files were injected.
 
-## Customization
+## Customization (config-first)
 
-This hook is intentionally simple. To customize per-agent behavior, edit `handler.ts` and adjust the allowlists.
+Use `openclaw.json` instead of editing code:
 
-Common customizations:
-- **Load only SOUL.md for one agent:** set the `wanted` list to `['SOUL.md']` for that `agentId`.
-- **Load nothing for one agent:** set `wanted = []` for that `agentId` (the agent will run with no project context files injected).
-- **Load root files for a specific agent:** set `wanted` to root files instead of `path.join('sub-agents', agentId, ...)`.
+- `agentWanted`: basename mode per agent.
+- `agentPaths`: explicit workspace-relative paths per agent (priority over `agentWanted`).
+- `excludeNames`: filenames to always exclude.
 
-Tip (non-coders): you can think of this hook as a "startup packing list". Every agent can have its own packing list.
+Example:
+
+```json
+{
+  "hooks": {
+    "internal": {
+      "entries": {
+        "bootstrap-minimizer": {
+          "enabled": true,
+          "debug": false,
+          "excludeNames": ["MEMORY.md", "memory.md"],
+          "agentWanted": {
+            "main": ["SOUL.md", "USER.md", "IDENTITY.md", "AGENTS.md", "TOOLS.md", "HEARTBEAT.md"],
+            "helper-1": ["SOUL.md"],
+            "helper-2": []
+          },
+          "agentPaths": {
+            "helper-3": [
+              "sub-agents/helper-3/SOUL.md",
+              "sub-agents/helper-3/IDENTITY.md",
+              "sub-agents/helper-3/RULES.md"
+            ]
+          }
+        }
+      }
+    }
+  }
+}
+```
 
 ## Debug logging
 Disabled by default.
