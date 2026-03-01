@@ -56,7 +56,7 @@ export default async function handler(event: any) {
     // Subagents: default to a minimal, tool-capable personality/role loadout.
     // Note: HEARTBEAT.md is intentionally NOT loaded for subagents by default.
     const wanted = ['SOUL.md', 'TOOLS.md', 'IDENTITY.md', 'USER.md'];
-    const files = await Promise.all(wanted.map((n) => mk(workspaceDir, path.join(agentId, n), n)));
+    const files = await Promise.all(wanted.map((n) => mk(workspaceDir, path.join('sub-agents', agentId, n), n)));
     chosen = files.filter((f) => !EXCLUDE.has(f.name));
   }
 
@@ -68,7 +68,7 @@ export default async function handler(event: any) {
 
   if (debug) {
     try {
-      const logPath = path.join(workspaceDir, 'initOvrhl', 'bootstrap-minimizer.log.jsonl');
+      const logPath = path.join(workspaceDir, 'debug', 'bootstrap-minimizer.log.jsonl');
       const payload = {
         ts: new Date().toISOString(),
         sessionKey,

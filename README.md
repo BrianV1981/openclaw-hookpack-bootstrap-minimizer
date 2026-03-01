@@ -45,15 +45,22 @@ Example layout:
 
 ```
 workspace/
-  main/            (your primary agent)
-  helper-1/        (a specialist subagent)
-  helper-2/        (another specialist)
+  SOUL.md
+  USER.md
+  IDENTITY.md
+  AGENTS.md
+  TOOLS.md
+  HEARTBEAT.md
 
-  helper-1/
-    SOUL.md        (personality + guardrails)
-    TOOLS.md       (tool usage notes)
-    IDENTITY.md    (role)
-    USER.md        (optional)
+  sub-agents/
+    helper-1/
+      SOUL.md      (personality + guardrails)
+      TOOLS.md     (tool usage notes)
+      IDENTITY.md  (role)
+      USER.md      (optional)
+
+    helper-2/
+      SOUL.md
 ```
 
 Minimal works. A 1–5 line `SOUL.md` is valid.
@@ -77,10 +84,10 @@ Injects only these root workspace files:
 
 ### Subagents (any non-main agent)
 Injects only the agent-folder equivalents:
-- `workspace/<agentId>/SOUL.md`
-- `workspace/<agentId>/TOOLS.md`
-- `workspace/<agentId>/IDENTITY.md`
-- `workspace/<agentId>/USER.md`
+- `workspace/sub-agents/<agentId>/SOUL.md`
+- `workspace/sub-agents/<agentId>/TOOLS.md`
+- `workspace/sub-agents/<agentId>/IDENTITY.md`
+- `workspace/sub-agents/<agentId>/USER.md`
 
 > `HEARTBEAT.md` is intentionally **not** injected for subagents by default.
 
@@ -140,7 +147,7 @@ Enable debug JSONL logging:
 ```
 
 Debug output:
-- `workspace/initOvrhl/bootstrap-minimizer.log.jsonl`
+- `workspace/debug/bootstrap-minimizer.log.jsonl`
 
 ## License
 MIT

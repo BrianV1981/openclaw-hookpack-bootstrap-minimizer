@@ -29,10 +29,10 @@ For `agentId=main`, it injects only these root workspace bootstrap files:
 
 ### Subagents
 For any non-main agent, it injects only the agent-folder bootstrap files:
-- `workspace/<agentId>/SOUL.md`
-- `workspace/<agentId>/TOOLS.md`
-- `workspace/<agentId>/IDENTITY.md`
-- `workspace/<agentId>/USER.md`
+- `workspace/sub-agents/<agentId>/SOUL.md`
+- `workspace/sub-agents/<agentId>/TOOLS.md`
+- `workspace/sub-agents/<agentId>/IDENTITY.md`
+- `workspace/sub-agents/<agentId>/USER.md`
 
 ### Exclusions
 Always excludes (by default):
@@ -49,11 +49,12 @@ Example:
 
 ```
 workspace/
-  helper-1/
-    SOUL.md
-    TOOLS.md
-    IDENTITY.md
-    USER.md
+  sub-agents/
+    helper-1/
+      SOUL.md
+      TOOLS.md
+      IDENTITY.md
+      USER.md
 ```
 
 You can keep these files extremely small (even 1–5 lines each).
@@ -75,7 +76,7 @@ This hook is intentionally simple. To customize per-agent behavior, edit `handle
 Common customizations:
 - **Load only SOUL.md for one agent:** set the `wanted` list to `['SOUL.md']` for that `agentId`.
 - **Load nothing for one agent:** set `wanted = []` for that `agentId` (the agent will run with no project context files injected).
-- **Load root files for a specific agent:** set `wanted` to root files instead of `path.join(agentId, ...)`.
+- **Load root files for a specific agent:** set `wanted` to root files instead of `path.join('sub-agents', agentId, ...)`.
 
 Tip (non-coders): you can think of this hook as a "startup packing list". Every agent can have its own packing list.
 
@@ -83,5 +84,5 @@ Tip (non-coders): you can think of this hook as a "startup packing list". Every 
 Disabled by default.
 
 If enabled via config, it writes JSONL debug entries to:
-- `workspace/initOvrhl/bootstrap-minimizer.log.jsonl`
+- `workspace/debug/bootstrap-minimizer.log.jsonl`
 

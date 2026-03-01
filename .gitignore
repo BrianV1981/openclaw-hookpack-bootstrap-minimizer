@@ -1,5 +1,5 @@
 # Local-only dev artifacts
-initOvrhl/
+debug/
 
 # Build/deps
 node_modules/
